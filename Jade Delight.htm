@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0050)file:///Users/tinaking/Downloads/jade_delight.html -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Jade Delight</title>
+</head>
+
+<body>
+<script
+  src="https://code.jquery.com/jquery-3.4.1.js"
+  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+  crossorigin="anonymous"></script>
+<script language="javascript">
+
+function MenuItem(name, cost){
+	this.name = name;
+	this.cost=cost;
+}
+
+menuItems = new Array(
+	new MenuItem("Chicken Chop Suey", 4.5),
+	new MenuItem("Sweet and Sour Pork", 6.25),
+	new MenuItem("Shrimp Lo Mein", 5.25),
+	new MenuItem("Moo Shi Chicken", 6.5),
+	new MenuItem("Fried Rice", 2.35)
+);
+
+function makeSelect(name, minRange, maxRange){
+	var t= "";
+	t = "<select name='" + name + "' size='1'>";
+	for (j=minRange; j<=maxRange; j++)
+	   t += "<option>" + j + "</option>";
+	t+= "</select>"; 
+	return t;
+}
+</script>
+
+<h1>Jade Delight</h1>
+<form>
+
+<p>First Name: <input type="text" name="fname"></p>
+<p>Last Name*:  <input type="text" name="lname"></p>
+<p>Street: <input type="text" name="street"></p>
+<p>City: <input type="text" name="city"></p>
+<p>Phone*: <input type="text" name="phone"></p>
+<p> 
+	<input type="radio" name="p_or_d" value="pickup" checked="checked">Pickup  
+	<input type="radio" name="p_or_d" value="delivery">
+	Delivery
+</p>
+<table border="0" cellpadding="3">
+  <tbody><tr>
+    <th>Select Item</th>
+    <th>Item Name</th>
+    <th>Cost Each</th>
+    <th>Total Cost</th>
+  </tr>
+<script language="javascript" >
+
+  var s = "";
+  for (i=0; i< menuItems.length; i++){
+	  s += "<tr><td>";
+	  s += makeSelect("quan" + i, 0, 10);
+	  s += "</td><td>" + menuItems[i].name + "</td>";
+	  s += "<td> $ " + menuItems[i].cost.toFixed(2) + "</td>";
+	  s += "<td>$<input type='text' name='cost'/></td></tr>";
+  }
+
+  costs = [0,0,0,0,0];
+  subtotal = 0;
+  tax = 0;
+  total = 0;
+
+  function updateSubtotal(){
+  	subtotal = costs.reduce((a,b) => a + b, 0);
+  	$('#subtotal').val(subtotal.toFixed(2));
+  }
+
+  function updateTax(){
+  	tax = .0625 * subtotal;
+  	$('#tax').val(tax.toFixed(2));
+  }
+
+  function updateTotal(){
+  	total = tax + subtotal;
+  	$('#total').val(total.toFixed(2));
+  }
+
+  function validateName(){
+  	if($('[name="lname"]').val()){
+  		return true;
+  	}else{
+  		return false;
+  	}	
+  }
+  function validatePhone(){
+  	var phonePattern = /^\(?(\d{3})\)?[- ]?(\d{3})[- ]?(\d{4})$/;
+  	phoneNumber = $('[name="phone"]').val();
+  	return phonePattern.test(phoneNumber); 
+
+  }
+  function validateStreet(){
+  	if($('[name="street"]').val()){
+  		return true;
+  	}else{
+  		return false;
+  	}	
+  }
+  function validateCity(){
+  	if($('[name="city"]').val()){
+  		return true;
+  	}else{
+  		return false;
+  	}	
+  }
+  document.writeln(s);
+
+  $('select').change( function () {    
+  		numChoice = parseInt($(this).attr('name').substring(4));
+   		updatedVal = parseInt($(this).val()) * menuItems[numChoice].cost;
+   		costs[numChoice] = updatedVal;
+
+   		updateSubtotal();
+   		updateTax();
+   		updateTotal();
+   		$(this).parent().parent().children().last().children().last().val(updatedVal.toFixed(2));
+   		updateSubtotal();
+	});  
+  		$("p:nth-child(2)").append('<span id="warning_name"></span>');
+		$("p:nth-child(5)").append('<span id="warning_phone"></span>');
+		$("p:nth-child(4)").append('<span id="warning_city"></span>');
+		$("p:nth-child(3)").append('<span id="warning_street"></span>');
+
+	const form = document.querySelector('form')
+	form.addEventListener('submit', event => {
+		event.preventDefault();
+		vName = validateName();
+		vPhone = validatePhone();
+		vStreet = validateStreet();
+		vCity = validateCity();
+
+
+
+  		pickup = $("input[name='p_or_d']:checked").val() == "pickup";
+  		if(vName){
+  			$('#warning_name').text("");
+  		}
+  		if(vPhone){
+  			$('#warning_phone').text("");
+  		}
+   		if(vStreet){
+  			$('#warning_street').text("");
+  		}
+   		if(vCity){
+  			$('#warning_city').text("");
+  		}
+
+		if(vName && vPhone){
+			document.writeln("Thanks for ordering from Jade Delight!</br>");
+			document.writeln("Your total is: $" + total.toFixed(2) +"</br>");
+			date = new Date();
+			if(!pickup && vStreet && vCity){
+				delivDate = new Date(date.getTime() + 30*60000);
+				document.writeln("Delivery time is: " + delivDate.getHours() + ":" + delivDate.getMinutes());
+
+			}else if(pickup){
+				pickupDate = new Date(date.getTime() + 15*60000);
+				document.writeln("Pickup time is: " + pickupDate.getHours() + ":" + pickupDate.getMinutes());
+			}else{
+
+			}
+		}
+		if(!vName){
+			$('#warning_name').text(" must enter a last name");
+		}
+		if(!vPhone){
+			$('#warning_phone').text(" not a valid phone number");
+
+		}
+		if(!pickup && !vCity){
+			$('#warning_city').text(" must enter a city");
+
+		}
+		if(!pickup && !vStreet){
+			$('#warning_street').text(" must enter a street");
+
+		}
+	});
+</script>
+</table>
+<p>Subtotal: 
+   $<input type="text" name="subtotal" id="subtotal">
+</p>
+<p>Mass tax 6.25%:
+  $ <input type="text" name="tax" id="tax">
+</p>
+<p>Total: $ <input type="text" name="total" id="total">
+</p>
+
+<input type="submit" value="Submit Order" action="submit()">
+
+</form>
+
+</body></html>
